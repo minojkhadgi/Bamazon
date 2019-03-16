@@ -9,6 +9,16 @@ let connection = mysql.createConnection({
     password: "password",
     database: "bamazon"
 });
+function validateInput(value) {
+	var integer = Number.isInteger(parseFloat(value));
+	var sign = Math.sign(value);
+
+	if (integer && (sign === 1)) {
+		return true;
+	} else {
+		return 'Please enter a whole non-zero number.';
+	}
+}
 connection.connect(function (err) {
     if (err) throw err;
     console.log("connected as ID " + connection.threadId);
@@ -38,7 +48,8 @@ function buyPrompt(){
     name:"ID",
     type:"input",
     message:"Which ID would you like to buy?",
-    filter:Number
+    filter:Number,
+    validate: validateInput,
 },
 {
     name:"Quantity",
@@ -47,9 +58,28 @@ function buyPrompt(){
     filter:Number
 },
 ]).then(function(answers){
-    var quantity =answer.Quantity;
+    var quantity =answers.Quantity;
     var IDrequested = answers.ID;
+    purchaseOrder(IDrequested,quantity);
 });
 };
+function purchaseOrder(ID, amtNeeded){
+    connection.query("select * FROM products WHERE ID = " + ID, function(err,res){
+        if (err){
+            console.log(err)
+        };
+        if(amtNeeded<=res[0].Stock){
+            var total = res[0].Price*amtNeeded;
+            console.log("We have enough stock for your order!!");
+            console.log("Your total for " + amtNeeded + " " + res[0].Product_name + " is " + total + " Thank YOU ... Visit Again!!")
+            connection.query("UPDATE products SET Stock = Stock - " + amtNeeded + " WHERE ID = " + ID);
+
+        }else{
+            console.log("Sorry we do not have enough " + res[0].Product_name +  " for your order.")
+            console.log("Sorry we do not have that item  " + res[0].ID +  " for your order.")
+        };
+        //displayInventory();
+    } );
+}
 };
 displayInventory();
