@@ -54,42 +54,24 @@ let displayInventory = function () {
 
     function restockProduct() {
         inquirer.prompt([{
-            name: "id",
-            type: "inputID",
+            name: "inputId",
+            type: "input",
             message: "which ID would you like to restock?"
         },
         {
-            name: "Quantity",
-            type: "inputN",
+            name: "inputNumber",
+            type: "input",
             message: "What quantity would you like to add?"
         },
-    ]).then(function(addInventory){
-        connection.query("UPDATE products SET? WHERE ?",[{
-            Stock:addInventory.inputN
-        },{
+    ]).then(function(managerAdd) {
 
-            ID:addInventory.inputID
-        }],
-        function(err,res){
-
-        });
+            connection.query("UPDATE `products` SET `Stock` = `Stock` + " + managerAdd.inputNumber + " WHERE `ID` = " + managerAdd.inputId),
+            function(err, res) {
+            };
         displayInventory();
-    });
-}
-    //     ]).then(function (answers) {
-    //         var addedQuantity = answers.Quantity;
-    //         var productID = answers.ID;
-    //         restockInventory(addedQuantity, productID);
-    //     });
-    // }
-    // function restockInventory(id,Quantity){
-    //     connection.query("SELECT *FROM Products WHERE ID = " +id, function(err,res){
-    //         if (err){console.log(err)};
-    //         connection.query("UPDATE Products SET Stock = Stock + " + Stock + "WHERE ID = " +ID);
-    //         displayInventory();
-    //     });
-
-    // };
+      });
+  
+    }
 function addProduct(){
     inquirer.prompt([{
         name:"ID",
